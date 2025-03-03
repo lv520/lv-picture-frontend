@@ -46,14 +46,27 @@
             <a-descriptions-item label="大小">
               {{ formatSize(picture.picSize) }}
             </a-descriptions-item>
+            <a-descriptions-item label="主色调">
+              <a-space>
+                {{ picture.picColor ?? '-' }}
+                <div
+                  v-if="picture.picColor"
+                  :style="{
+                    backgroundColor: toHexColor(picture.picColor),
+                    width: '16px',
+                    height: '16px',
+                  }"
+                />
+              </a-space>
+            </a-descriptions-item>
           </a-descriptions>
           <!--图片操作-->
           <a-space wrap>
             <a-button type="primary" @click="doDownload">
-            免费下载
-            <template #icon>
-              <DownloadOutlined />
-            </template>
+              免费下载
+              <template #icon>
+                <DownloadOutlined />
+              </template>
             </a-button>
             <a-button v-if="canEdit" type="default" @click="doEdit">
               编辑
@@ -68,7 +81,6 @@
               </template>
             </a-button>
           </a-space>
-
         </a-card>
       </a-col>
     </a-row>
@@ -81,10 +93,10 @@ import {
   deletePictureUsingPost,
   getPictureVoByIdUsingGet,
   listPictureTagCategoryUsingGet,
-  listPictureVoByPageUsingPost
+  listPictureVoByPageUsingPost,
 } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
-import { downloadImage, formatSize } from '@/utils'
+import { downloadImage, formatSize, toHexColor } from '@/utils'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStrore.ts'
 import router from '@/router'
@@ -122,7 +134,7 @@ onMounted(() => {
 const loginUserStore = useLoginUserStore()
 // 是否具有编辑权限
 const canEdit = computed(() => {
-  const loginUser = loginUserStore.loginUser;
+  const loginUser = loginUserStore.loginUser
   // 未登录不可编辑
   if (!loginUser.id) {
     return false
@@ -159,7 +171,6 @@ const doDelete = async () => {
 const doDownload = () => {
   downloadImage(picture.value.url)
 }
-
 </script>
 
 <style>

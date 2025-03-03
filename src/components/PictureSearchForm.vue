@@ -67,9 +67,9 @@
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import dayjs from 'dayjs'
-import { listPictureTagCategoryUsingGet } from '@/api/pictureController.ts'
+import { listPictureTagCategoryUsingGet, searchPictureByColorUsingPost } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
-
+import "vue3-colorpicker/style.css"
 interface Props {
   onSearch?: (searchParams: API.PictureQueryRequest) => void
 }
@@ -145,6 +145,7 @@ const doClear = () => {
   dateRange.value = []
   props.onSearch?.(searchParams)
 }
+
 
 </script>
 <style scoped>
