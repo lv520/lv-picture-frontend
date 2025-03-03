@@ -49,6 +49,12 @@
           </a-descriptions>
           <!--图片操作-->
           <a-space wrap>
+            <a-button type="primary" @click="doDownload">
+            免费下载
+            <template #icon>
+              <DownloadOutlined />
+            </template>
+            </a-button>
             <a-button v-if="canEdit" type="default" @click="doEdit">
               编辑
               <template #icon>
@@ -78,7 +84,7 @@ import {
   listPictureVoByPageUsingPost
 } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
-import {formatSize} from '@/utils'
+import { downloadImage, formatSize } from '@/utils'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStrore.ts'
 import router from '@/router'
@@ -128,7 +134,13 @@ const canEdit = computed(() => {
 
 // 编辑
 const doEdit = () => {
-  router.push('/add_picture?id=' + picture.value.id)
+  router.push({
+    path: '/add_picture',
+    query: {
+      id: picture.value.id,
+      spaceId: picture.value.spaceId,
+    },
+  })
 }
 // 删除
 const doDelete = async () => {
@@ -143,7 +155,10 @@ const doDelete = async () => {
     message.error('删除失败')
   }
 }
-
+// 下载图片
+const doDownload = () => {
+  downloadImage(picture.value.url)
+}
 
 </script>
 
