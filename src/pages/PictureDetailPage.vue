@@ -98,7 +98,7 @@ import {
 import { message } from 'ant-design-vue'
 import { downloadImage, formatSize, toHexColor } from '@/utils'
 import { useRouter } from 'vue-router'
-import { useLoginUserStore } from '@/stores/useLoginUserStrore.ts'
+import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import router from '@/router'
 
 interface Props {

@@ -31,7 +31,7 @@
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { reactive } from 'vue'
-import { useLoginUserStore } from '@/stores/useLoginUserStrore.ts'
+import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { userLoginUsingPost } from '@/api/userController.ts'
 
 //用于接收表单输入的值 账号和密码

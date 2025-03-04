@@ -1,5 +1,5 @@
 import router from '@/router'
-import { useLoginUserStore } from '@/stores/useLoginUserStrore.ts'
+import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { message } from 'ant-design-vue'
 
 
