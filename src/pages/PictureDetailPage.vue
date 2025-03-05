@@ -1,13 +1,13 @@
 <template>
   <div id="pictureDetailPage">
     <a-row :gutter="[16, 16]">
-      <!-- 图片展示区 -->
+      <!-- 图片预览 -->
       <a-col :sm="24" :md="16" :xl="18">
         <a-card title="图片预览">
-          <a-image style="max-height: 600px; object-fit: contain" :src="picture.url" />
+          <a-image :src="picture.url" style="max-height: 600px; object-fit: contain" />
         </a-card>
       </a-col>
-      <!-- 图片信息区 -->
+      <!-- 图片信息区域 -->
       <a-col :sm="24" :md="8" :xl="6">
         <a-card title="图片信息">
           <a-descriptions :column="1">
@@ -52,15 +52,15 @@
                 <div
                   v-if="picture.picColor"
                   :style="{
-                    backgroundColor: toHexColor(picture.picColor),
                     width: '16px',
                     height: '16px',
+                    backgroundColor: toHexColor(picture.picColor),
                   }"
                 />
               </a-space>
             </a-descriptions-item>
           </a-descriptions>
-          <!--图片操作-->
+          <!-- 图片操作 -->
           <a-space wrap>
             <a-button type="primary" @click="doDownload">
               免费下载
@@ -68,48 +68,55 @@
                 <DownloadOutlined />
               </template>
             </a-button>
-            <a-button v-if="canEdit" type="default" @click="doEdit">
-              编辑
-              <template #icon>
-                <EditOutlined />
-              </template>
+            <a-button :icon="h(ShareAltOutlined)" type="primary" ghost @click="doShare">
+              分享
             </a-button>
-            <a-button v-if="canEdit" danger @click="doDelete">
+            <a-button v-if="canEdit" :icon="h(EditOutlined)" type="default" @click="doEdit">
+              编辑
+            </a-button>
+            <a-button v-if="canDelete" :icon="h(DeleteOutlined)" danger @click="doDelete">
               删除
-              <template #icon>
-                <DeleteOutlined />
-              </template>
             </a-button>
           </a-space>
         </a-card>
       </a-col>
     </a-row>
+    <ShareModal ref="shareModalRef" :link="shareLink" />
   </div>
 </template>
+
 <script setup lang="ts">
-// 数据
-import { computed, onMounted, reactive, ref } from 'vue'
-import {
-  deletePictureUsingPost,
-  getPictureVoByIdUsingGet,
-  listPictureTagCategoryUsingGet,
-  listPictureVoByPageUsingPost,
-} from '@/api/pictureController.ts'
+import { computed, h, onMounted, ref } from 'vue'
+import { deletePictureUsingPost, getPictureVoByIdUsingGet } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
-import { downloadImage, formatSize, toHexColor } from '@/utils'
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
-import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
-import router from '@/router'
+import { downloadImage, formatSize, toHexColor } from '@/utils'
+import ShareModal from '@/components/ShareModal.vue'
+import { SPACE_PERMISSION_ENUM } from '@/constants/space.ts'
 
 interface Props {
   id: string | number
 }
-const props = defineProps<Props>()
-const dataList = ref([])
-const total = ref(0)
-const loading = ref(true)
 
+const props = defineProps<Props>()
 const picture = ref<API.PictureVO>({})
+
+// 通用权限检查函数
+function createPermissionChecker(permission: string) {
+  return computed(() => {
+    return (picture.value.permissionList ?? []).includes(permission)
+  })
+}
+
+// 定义权限检查
+const canEdit = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_EDIT)
+const canDelete = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_DELETE)
 
 // 获取图片详情
 const fetchPictureDetail = async () => {
@@ -131,18 +138,7 @@ onMounted(() => {
   fetchPictureDetail()
 })
 
-const loginUserStore = useLoginUserStore()
-// 是否具有编辑权限
-const canEdit = computed(() => {
-  const loginUser = loginUserStore.loginUser
-  // 未登录不可编辑
-  if (!loginUser.id) {
-    return false
-  }
-  // 仅本人或管理员可编辑
-  const user = picture.value.user || {}
-  return loginUser.id === user.id || loginUser.userRole === 'admin'
-})
+const router = useRouter()
 
 // 编辑
 const doEdit = () => {
@@ -154,7 +150,8 @@ const doEdit = () => {
     },
   })
 }
-// 删除
+
+// 删除数据
 const doDelete = async () => {
   const id = picture.value.id
   if (!id) {
@@ -167,21 +164,27 @@ const doDelete = async () => {
     message.error('删除失败')
   }
 }
+
 // 下载图片
 const doDownload = () => {
   downloadImage(picture.value.url)
 }
+
+// ----- 分享操作 ----
+const shareModalRef = ref()
+// 分享链接
+const shareLink = ref<string>()
+// 分享
+const doShare = () => {
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.value.id}`
+  if (shareModalRef.value) {
+    shareModalRef.value.openModal()
+  }
+}
 </script>
 
-<style>
+<style scoped>
 #pictureDetailPage {
-}
-#pictureDetailPage .search-bar {
-  max-width: 480px;
-  margin: 0 auto 16px;
-}
-
-#homePage .tag-bar {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 </style>
