@@ -71,6 +71,12 @@ const originItems = [
     label: '主页',
     title: '主页',
   },
+
+  {
+    key: '/user_exchange_vip',
+    label: '兑换会员',
+    title: '兑换会员',
+  },
   {
     key: '/add_picture',
     label: '创建图片',
